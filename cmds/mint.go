@@ -15,7 +15,7 @@ import (
 )
 
 type MintCommand struct {
-	baseCommand
+	BaseCommand
 	cmds.OperationFlags
 	Sender       cmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract     cmds.AddressFlag    `arg:"" name:"contract" help:"contract address" required:"true"`
@@ -34,8 +34,8 @@ type MintCommand struct {
 }
 
 func NewMintCommand() MintCommand {
-	cmd := NewbaseCommand()
-	return MintCommand{baseCommand: *cmd}
+	cmd := NewBaseCommand()
+	return MintCommand{BaseCommand: *cmd}
 }
 
 func (cmd *MintCommand) Run(pctx context.Context) error { // nolint:dupl
@@ -43,8 +43,8 @@ func (cmd *MintCommand) Run(pctx context.Context) error { // nolint:dupl
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -127,18 +127,18 @@ func (cmd *MintCommand) parseFlags() error {
 }
 
 func (cmd *MintCommand) createOperation() (base.Operation, error) { // nolint:dupl
-	e := util.StringErrorFunc("failed to create mint operation")
+	e := util.StringError("failed to create mint operation")
 
 	item := nft.NewMintItem(cmd.contract, cmd.collection, cmd.hash, cmd.uri, cmd.creators, cmd.Currency.CID)
 	fact := nft.NewMintFact([]byte(cmd.Token), cmd.sender, []nft.MintItem{item})
 
 	op, err := nft.NewMint(fact)
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 
 	return op, nil

@@ -14,7 +14,7 @@ import (
 )
 
 type ApproveCommand struct {
-	baseCommand
+	BaseCommand
 	cmds.OperationFlags
 	Sender     cmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract   cmds.AddressFlag    `arg:"" name:"contract" help:"contract address" required:"true"`
@@ -29,8 +29,8 @@ type ApproveCommand struct {
 }
 
 func NewApproveCommand() ApproveCommand {
-	cmd := NewbaseCommand()
-	return ApproveCommand{baseCommand: *cmd}
+	cmd := NewBaseCommand()
+	return ApproveCommand{BaseCommand: *cmd}
 }
 
 func (cmd *ApproveCommand) Run(pctx context.Context) error { // nolint:dupl
@@ -38,8 +38,8 @@ func (cmd *ApproveCommand) Run(pctx context.Context) error { // nolint:dupl
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -90,7 +90,7 @@ func (cmd *ApproveCommand) parseFlags() error {
 }
 
 func (cmd *ApproveCommand) createOperation() (mitumbase.Operation, error) {
-	e := util.StringErrorFunc("failed to create approve operation")
+	e := util.StringError("failed to create approve operation")
 
 	item := nft.NewApproveItem(cmd.contract, cmd.collection, cmd.approved, cmd.NFTidx, cmd.Currency.CID)
 
@@ -102,11 +102,11 @@ func (cmd *ApproveCommand) createOperation() (mitumbase.Operation, error) {
 
 	op, err := nft.NewApprove(fact)
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 
 	return op, nil

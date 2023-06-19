@@ -15,7 +15,7 @@ import (
 )
 
 type CollectionPolicyUpdaterCommand struct {
-	baseCommand
+	BaseCommand
 	cmds.OperationFlags
 	Sender     cmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract   cmds.AddressFlag    `arg:"" name:"contract" help:"contract address" required:"true"`
@@ -35,8 +35,8 @@ type CollectionPolicyUpdaterCommand struct {
 }
 
 func NewCollectionPolicyUpdaterCommand() CollectionPolicyUpdaterCommand {
-	cmd := NewbaseCommand()
-	return CollectionPolicyUpdaterCommand{baseCommand: *cmd}
+	cmd := NewBaseCommand()
+	return CollectionPolicyUpdaterCommand{BaseCommand: *cmd}
 }
 
 func (cmd *CollectionPolicyUpdaterCommand) Run(pctx context.Context) error {
@@ -44,8 +44,8 @@ func (cmd *CollectionPolicyUpdaterCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -118,7 +118,7 @@ func (cmd *CollectionPolicyUpdaterCommand) parseFlags() error {
 }
 
 func (cmd *CollectionPolicyUpdaterCommand) createOperation() (mitumbase.Operation, error) {
-	e := util.StringErrorFunc("failed to create collection-policy-updater operation")
+	e := util.StringError("failed to create collection-policy-updater operation")
 
 	fact := nft.NewCollectionPolicyUpdaterFact(
 		[]byte(cmd.Token),
@@ -134,11 +134,11 @@ func (cmd *CollectionPolicyUpdaterCommand) createOperation() (mitumbase.Operatio
 
 	op, err := nft.NewCollectionPolicyUpdater(fact)
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 
 	return op, nil

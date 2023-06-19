@@ -29,11 +29,11 @@ type OperatorsBookJSONUnmarshaler struct {
 }
 
 func (ob *OperatorsBook) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of operators book")
+	e := util.StringError("failed to decode json of operators book")
 
 	var u OperatorsBookJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return ob.unmarshal(enc, u.Hint, u.Collection, u.Operators)

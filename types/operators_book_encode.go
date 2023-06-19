@@ -14,7 +14,7 @@ func (ob *OperatorsBook) unmarshal(
 	col string,
 	bags []string,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal operators book")
+	e := util.StringError("failed to unmarshal operators book")
 
 	ob.BaseHinter = hint.NewBaseHinter(ht)
 	ob.collection = currencytypes.ContractID(col)
@@ -23,7 +23,7 @@ func (ob *OperatorsBook) unmarshal(
 	for i, bag := range bags {
 		operator, err := mitumbase.DecodeAddress(bag, enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		operators[i] = operator
 	}

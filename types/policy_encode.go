@@ -15,7 +15,7 @@ func (p *CollectionPolicy) unmarshal(
 	uri string,
 	bws []string,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal CollectionPoicy")
+	e := util.StringError("failed to unmarshal CollectionPoicy")
 
 	p.BaseHinter = hint.NewBaseHinter(ht)
 	p.name = CollectionName(nm)
@@ -26,7 +26,7 @@ func (p *CollectionPolicy) unmarshal(
 	for i, bw := range bws {
 		white, err := base.DecodeAddress(bw, enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		whites[i] = white
 	}

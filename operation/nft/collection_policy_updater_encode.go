@@ -19,20 +19,20 @@ func (fact *CollectionPolicyUpdaterFact) unmarshal(
 	bws []string,
 	cid string,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal CollectionPolicyUpdaterFact")
+	e := util.StringError("failed to unmarshal CollectionPolicyUpdaterFact")
 
 	fact.collection = currencytypes.ContractID(col)
 	fact.currency = currencytypes.CurrencyID(cid)
 
 	sender, err := mitumbase.DecodeAddress(sd, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.sender = sender
 
 	contract, err := mitumbase.DecodeAddress(sd, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.contract = contract
 
@@ -42,7 +42,7 @@ func (fact *CollectionPolicyUpdaterFact) unmarshal(
 
 	//hits, err := enc.DecodeSlice(bws)
 	//if err != nil {
-	//	return e(err, "")
+	//	return e.Wrap(err)
 	//}
 	//
 	//whitelist := make([]mitumbase.Address, len(bws))
@@ -50,7 +50,7 @@ func (fact *CollectionPolicyUpdaterFact) unmarshal(
 	//	ad := fmt.Sprintf("%v", hits[i])
 	//	white, err := mitumbase.DecodeAddress(ad, enc)
 	//	if err != nil {
-	//		return e(err, "")
+	//		return e.Wrap(err)
 	//	}
 	//	whitelist[i] = white
 	//}
@@ -59,7 +59,7 @@ func (fact *CollectionPolicyUpdaterFact) unmarshal(
 	for i, bw := range bws {
 		white, err := mitumbase.DecodeAddress(bw, enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		whitelist[i] = white
 	}

@@ -29,13 +29,13 @@ type MintFactBSONUnmarshaler struct {
 }
 
 func (fact *MintFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of MintFact")
+	e := util.StringError("failed to decode bson of MintFact")
 
 	var u common.BaseFactBSONUnmarshaler
 
 	err := enc.Unmarshal(b, &u)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(u.Hash))
@@ -43,12 +43,12 @@ func (fact *MintFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 
 	var uf MintFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uf.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -66,11 +66,11 @@ func (op Mint) MarshalBSON() ([]byte, error) {
 }
 
 func (op *Mint) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of Mint")
+	e := util.StringError("failed to decode bson of Mint")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

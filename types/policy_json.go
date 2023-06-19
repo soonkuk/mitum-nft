@@ -34,11 +34,11 @@ type CollectionPolicyJSONUnmarshaler struct {
 }
 
 func (p *CollectionPolicy) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CollectionPolicy")
+	e := util.StringError("failed to decode json of CollectionPolicy")
 
 	var u CollectionPolicyJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return p.unmarshal(enc, u.Hint, u.Name, u.Royalty, u.URI, u.Whites)

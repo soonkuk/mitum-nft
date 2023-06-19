@@ -33,16 +33,16 @@ type MintItemBSONUnmarshaler struct {
 }
 
 func (it *MintItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of MintItem")
+	e := util.StringError("failed to decode bson of MintItem")
 
 	var u MintItemBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unmarshal(enc, ht, u.Contract, u.Collection, u.Hash, u.Uri, u.Creators, u.Currency)

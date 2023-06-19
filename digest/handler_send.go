@@ -63,7 +63,7 @@ func (hd *Handlers) sendItem(v interface{}) (Hal, error) {
 			}
 
 			if err := t.IsValid(hd.networkID); err != nil {
-				if !errors.Is(err, mitumutil.NewError("signature verification failed")) {
+				if !errors.Is(err, mitumutil.NewIDError("signature verification failed")) {
 					return nil, err
 				}
 			}

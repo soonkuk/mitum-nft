@@ -4,6 +4,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
+	"github.com/pkg/errors"
 )
 
 func (sgns *Signers) unmarshal(
@@ -12,21 +13,21 @@ func (sgns *Signers) unmarshal(
 	tt uint,
 	bsns []byte,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal Signers")
+	e := util.StringError("failed to unmarshal Signers")
 
 	sgns.BaseHinter = hint.NewBaseHinter(ht)
 	sgns.total = tt
 
 	hinters, err := enc.DecodeSlice(bsns)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	signers := make([]Signer, len(hinters))
 	for i, hinter := range hinters {
 		signer, ok := hinter.(Signer)
 		if !ok {
-			return e(util.ErrWrongType.Errorf("expected Signer, not %T", hinter), "")
+			return e.Wrap(errors.Errorf("expected Signer, not %T", hinter))
 		}
 
 		signers[i] = signer

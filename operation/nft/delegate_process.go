@@ -108,18 +108,18 @@ func NewDelegateProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 	) (mitumbase.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new DelegateProcessor")
+		e := util.StringError("failed to create new DelegateProcessor")
 
 		nopp := delegateProcessorPool.Get()
 		opp, ok := nopp.(*DelegateProcessor)
 		if !ok {
-			return nil, e(nil, "expected DelegateProcessor, not %T", nopp)
+			return nil, e.Errorf("expected DelegateProcessor, not %T", nopp)
 		}
 
 		b, err := mitumbase.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -131,15 +131,15 @@ func NewDelegateProcessor() currencytypes.GetNewProcessor {
 func (opp *DelegateProcessor) PreProcess(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc,
 ) (context.Context, mitumbase.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess Delegate")
+	e := util.StringError("failed to preprocess Delegate")
 
 	fact, ok := op.Fact().(DelegateFact)
 	if !ok {
-		return ctx, nil, e(nil, "expected DelgateFact, not %T", op.Fact())
+		return ctx, nil, e.Errorf("expected DelgateFact, not %T", op.Fact())
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := state.CheckExistsState(statecurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -188,7 +188,7 @@ func (opp *DelegateProcessor) PreProcess(
 		ip := delegateItemProcessorPool.Get()
 		ipc, ok := ip.(*DelegateItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected DelegateItemProcessor, not %T", ip)
+			return nil, nil, e.Errorf("expected DelegateItemProcessor, not %T", ip)
 		}
 
 		ipc.h = op.Hash()
@@ -210,11 +210,11 @@ func (opp *DelegateProcessor) Process(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc) (
 	[]mitumbase.StateMergeValue, mitumbase.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process Delegate")
+	e := util.StringError("failed to process Delegate")
 
 	fact, ok := op.Fact().(DelegateFact)
 	if !ok {
-		return nil, nil, e(nil, "expected DelgateFact, not %T", op.Fact())
+		return nil, nil, e.Errorf("expected DelgateFact, not %T", op.Fact())
 	}
 
 	boxes := map[string]*types.OperatorsBook{}
@@ -245,7 +245,7 @@ func (opp *DelegateProcessor) Process(
 		ip := delegateItemProcessorPool.Get()
 		ipc, ok := ip.(*DelegateItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected DelegateItemProcessor, not %T", ip)
+			return nil, nil, e.Errorf("expected DelegateItemProcessor, not %T", ip)
 		}
 
 		ipc.h = op.Hash()
@@ -283,7 +283,7 @@ func (opp *DelegateProcessor) Process(
 	for i := range sb {
 		v, ok := sb[i].Value().(statecurrency.BalanceStateValue)
 		if !ok {
-			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
+			return nil, nil, e.Errorf("expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := statecurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
 		sts = append(sts, state.NewStateMergeValue(sb[i].Key(), stv))

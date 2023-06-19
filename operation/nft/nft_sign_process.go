@@ -159,18 +159,18 @@ func NewNFTSignProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 	) (mitumbase.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new NFTSignProcessor")
+		e := util.StringError("failed to create new NFTSignProcessor")
 
 		nopp := nftSignProcessorPool.Get()
 		opp, ok := nopp.(*NFTSignProcessor)
 		if !ok {
-			return nil, e(nil, "expected NFTSignProcessor, not %T", nopp)
+			return nil, e.Errorf("expected NFTSignProcessor, not %T", nopp)
 		}
 
 		b, err := mitumbase.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -182,15 +182,15 @@ func NewNFTSignProcessor() currencytypes.GetNewProcessor {
 func (opp *NFTSignProcessor) PreProcess(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc,
 ) (context.Context, mitumbase.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess NFTSign")
+	e := util.StringError("failed to preprocess NFTSign")
 
 	fact, ok := op.Fact().(NFTSignFact)
 	if !ok {
-		return ctx, nil, e(nil, "expected NFTSignFact, not %T", op.Fact())
+		return ctx, nil, e.Errorf("expected NFTSignFact, not %T", op.Fact())
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := state.CheckExistsState(statecurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -209,7 +209,7 @@ func (opp *NFTSignProcessor) PreProcess(
 		ip := nftSignItemProcessorPool.Get()
 		ipc, ok := ip.(*NFTSignItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected NFTSignItemProcessor, not %T", ip)
+			return nil, nil, e.Errorf("expected NFTSignItemProcessor, not %T", ip)
 		}
 
 		ipc.h = op.Hash()
@@ -230,11 +230,11 @@ func (opp *NFTSignProcessor) Process( // nolint:dupl
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc) (
 	[]mitumbase.StateMergeValue, mitumbase.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process NFTSign")
+	e := util.StringError("failed to process NFTSign")
 
 	fact, ok := op.Fact().(NFTSignFact)
 	if !ok {
-		return nil, nil, e(nil, "expected NFTSignFact, not %T", op.Fact())
+		return nil, nil, e.Errorf("expected NFTSignFact, not %T", op.Fact())
 	}
 
 	var sts []mitumbase.StateMergeValue
@@ -243,7 +243,7 @@ func (opp *NFTSignProcessor) Process( // nolint:dupl
 		ip := nftSignItemProcessorPool.Get()
 		ipc, ok := ip.(*NFTSignItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected NFTSignItemProcessor, not %T", ip)
+			return nil, nil, e.Errorf("expected NFTSignItemProcessor, not %T", ip)
 		}
 
 		ipc.h = op.Hash()
@@ -277,7 +277,7 @@ func (opp *NFTSignProcessor) Process( // nolint:dupl
 	for i := range sb {
 		v, ok := sb[i].Value().(statecurrency.BalanceStateValue)
 		if !ok {
-			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
+			return nil, nil, e.Errorf("expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := statecurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
 		sts = append(sts, state.NewStateMergeValue(sb[i].Key(), stv))

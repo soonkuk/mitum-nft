@@ -45,11 +45,11 @@ type MintItemJSONUnmarshaler struct {
 }
 
 func (it *MintItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of MintItem")
+	e := util.StringError("failed to decode json of MintItem")
 
 	var u MintItemJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unmarshal(enc, u.Hint, u.Contract, u.Collection, u.Hash, u.Uri, u.Creators, u.Currency)

@@ -16,21 +16,21 @@ func (it *ApproveItem) unmarshal(
 	idx uint64,
 	cid string,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal ApproveItem")
+	e := util.StringError("failed to unmarshal ApproveItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.currency = types.CurrencyID(cid)
 	it.collection = types.ContractID(col)
 	switch a, err := mitumbase.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
 
 	approved, err := mitumbase.DecodeAddress(ap, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	it.approved = approved
 	it.idx = idx

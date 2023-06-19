@@ -30,16 +30,16 @@ type ApproveItemBSONUnmarshaler struct {
 }
 
 func (it *ApproveItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of ApproveItem")
+	e := util.StringError("failed to decode bson of ApproveItem")
 
 	var u ApproveItemBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unmarshal(enc, ht, u.Contract, u.Collection, u.Approved, u.NFTidx, u.Currency)

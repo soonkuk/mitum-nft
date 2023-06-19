@@ -6,6 +6,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
+	"github.com/pkg/errors"
 )
 
 func (de *Design) unmarshal(
@@ -17,7 +18,7 @@ func (de *Design) unmarshal(
 	ac bool,
 	bpo []byte,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal Design")
+	e := util.StringError("failed to unmarshal Design")
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 	de.collection = types.ContractID(sb)
@@ -25,20 +26,20 @@ func (de *Design) unmarshal(
 
 	parent, err := mitumbase.DecodeAddress(pr, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	de.parent = parent
 
 	creator, err := mitumbase.DecodeAddress(cr, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	de.creator = creator
 
 	if hinter, err := enc.Decode(bpo); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	} else if po, ok := hinter.(BasePolicy); !ok {
-		return e(util.ErrWrongType.Errorf("expected BasePolicy, not %T", hinter), "")
+		return e.Wrap(errors.Errorf("expected BasePolicy, not %T", hinter))
 	} else {
 		de.policy = po
 	}

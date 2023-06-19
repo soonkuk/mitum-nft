@@ -17,9 +17,8 @@ import (
 )
 
 const (
-	PNameDigester            = ps.Name("digester")
-	PNameStartDigester       = ps.Name("start_digester")
-	HookNameDigesterFollowUp = ps.Name("followup_digester")
+	PNameDigester      = ps.Name("digester")
+	PNameStartDigester = ps.Name("start_digester")
 )
 
 func ProcessDigester(ctx context.Context) (context.Context, error) {
@@ -61,7 +60,7 @@ func ProcessStartDigester(ctx context.Context) (context.Context, error) {
 	return ctx, di.Start(ctx)
 }
 
-func PdigesterFollowUp(ctx context.Context) (context.Context, error) {
+func PDigesterFollowUp(ctx context.Context) (context.Context, error) {
 	var log *logging.Logging
 	if err := util.LoadFromContextOK(ctx, launch.LoggingContextKey, &log); err != nil {
 		return ctx, err

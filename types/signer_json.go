@@ -31,11 +31,11 @@ type SignerJSONUnmarshaler struct {
 }
 
 func (sgn *Signer) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of Signer")
+	e := util.StringError("failed to decode json of Signer")
 
 	var u SignerJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return sgn.unmarshal(enc, u.Hint, u.Account, u.Share, u.Signed)

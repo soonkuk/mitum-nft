@@ -4,6 +4,7 @@ import (
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
+	"github.com/pkg/errors"
 )
 
 func (fact *NFTTransferFact) unmarshal(
@@ -11,11 +12,11 @@ func (fact *NFTTransferFact) unmarshal(
 	sd string,
 	bits []byte,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal NFTTransferFact")
+	e := util.StringError("failed to unmarshal NFTTransferFact")
 
 	sender, err := base.DecodeAddress(sd, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.sender = sender
 
@@ -28,7 +29,7 @@ func (fact *NFTTransferFact) unmarshal(
 	for i, hinter := range hits {
 		item, ok := hinter.(NFTTransferItem)
 		if !ok {
-			return e(util.ErrWrongType.Errorf("expected NFTTransferItem, not %T", hinter), "")
+			return e.Wrap(errors.Errorf("expected NFTTransferItem, not %T", hinter))
 		}
 
 		items[i] = item

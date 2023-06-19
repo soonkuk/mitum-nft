@@ -14,7 +14,7 @@ import (
 )
 
 type CollectionRegisterCommand struct {
-	baseCommand
+	BaseCommand
 	cmds.OperationFlags
 	Sender     cmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract   cmds.AddressFlag    `arg:"" name:"contract" help:"contract account to register policy" required:"true"`
@@ -34,8 +34,8 @@ type CollectionRegisterCommand struct {
 }
 
 func NewCollectionRegisterCommand() CollectionRegisterCommand {
-	cmd := NewbaseCommand()
-	return CollectionRegisterCommand{baseCommand: *cmd}
+	cmd := NewBaseCommand()
+	return CollectionRegisterCommand{BaseCommand: *cmd}
 }
 
 func (cmd *CollectionRegisterCommand) Run(pctx context.Context) error {
@@ -43,8 +43,8 @@ func (cmd *CollectionRegisterCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -125,7 +125,7 @@ func (cmd *CollectionRegisterCommand) parseFlags() error {
 }
 
 func (cmd *CollectionRegisterCommand) createOperation() (mitumbase.Operation, error) {
-	e := util.StringErrorFunc("failed to create collection-register operation")
+	e := util.StringError("failed to create collection-register operation")
 
 	fact := nft.NewCollectionRegisterFact(
 		[]byte(cmd.Token),
@@ -141,11 +141,11 @@ func (cmd *CollectionRegisterCommand) createOperation() (mitumbase.Operation, er
 
 	op, err := nft.NewCollectionRegister(fact)
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 
 	return op, nil

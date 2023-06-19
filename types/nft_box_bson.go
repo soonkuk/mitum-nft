@@ -22,16 +22,16 @@ type NFTBoxBSONUnmarshaler struct {
 }
 
 func (nbx *NFTBox) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of NFTBox")
+	e := util.StringError("failed to decode bson of NFTBox")
 
 	var u NFTBoxBSONUnmarshaler
 	if err := bsonenc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return nbx.unmarshal(enc, ht, u.NFTs)

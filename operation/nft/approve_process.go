@@ -169,18 +169,18 @@ func NewApproveProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 	) (mitumbase.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new ApproveProcessor")
+		e := util.StringError("failed to create new ApproveProcessor")
 
 		nopp := approveProcessorPool.Get()
 		opp, ok := nopp.(*ApproveProcessor)
 		if !ok {
-			return nil, e(nil, "expected ApproveProcessor, not %T", nopp)
+			return nil, e.Errorf("expected ApproveProcessor, not %T", nopp)
 		}
 
 		b, err := mitumbase.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -192,15 +192,15 @@ func NewApproveProcessor() currencytypes.GetNewProcessor {
 func (opp *ApproveProcessor) PreProcess(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc,
 ) (context.Context, mitumbase.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess Approve")
+	e := util.StringError("failed to preprocess Approve")
 
 	fact, ok := op.Fact().(ApproveFact)
 	if !ok {
-		return ctx, nil, e(nil, "expected ApproveFact, not %T", op.Fact())
+		return ctx, nil, e.Errorf("expected ApproveFact, not %T", op.Fact())
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := state.CheckExistsState(statecurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -215,7 +215,7 @@ func (opp *ApproveProcessor) PreProcess(
 		ip := approveItemProcessorPool.Get()
 		ipc, ok := ip.(*ApproveItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected ApproveItemProcessor, not %T", ipc)
+			return nil, nil, e.Errorf("expected ApproveItemProcessor, not %T", ipc)
 		}
 
 		ipc.h = op.Hash()
@@ -236,11 +236,11 @@ func (opp *ApproveProcessor) Process(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc) (
 	[]mitumbase.StateMergeValue, mitumbase.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process Approve")
+	e := util.StringError("failed to process Approve")
 
 	fact, ok := op.Fact().(ApproveFact)
 	if !ok {
-		return nil, nil, e(nil, "expected ApproveFact, not %T", op.Fact())
+		return nil, nil, e.Errorf("expected ApproveFact, not %T", op.Fact())
 	}
 
 	var sts []mitumbase.StateMergeValue // nolint:prealloc
@@ -248,7 +248,7 @@ func (opp *ApproveProcessor) Process(
 		ip := approveItemProcessorPool.Get()
 		ipc, ok := ip.(*ApproveItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected ApproveItemProcessor, not %T", ip)
+			return nil, nil, e.Errorf("expected ApproveItemProcessor, not %T", ip)
 		}
 
 		ipc.h = op.Hash()
@@ -282,7 +282,7 @@ func (opp *ApproveProcessor) Process(
 	for i := range sb {
 		v, ok := sb[i].Value().(statecurrency.BalanceStateValue)
 		if !ok {
-			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
+			return nil, nil, e.Errorf("expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := statecurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
 		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))

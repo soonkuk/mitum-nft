@@ -13,7 +13,7 @@ import (
 )
 
 type DelegateCommand struct {
-	baseCommand
+	BaseCommand
 	cmds.OperationFlags
 	Sender     cmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract   cmds.AddressFlag    `arg:"" name:"contract" help:"contract address" required:"true"`
@@ -29,8 +29,8 @@ type DelegateCommand struct {
 }
 
 func NewDelegateCommand() DelegateCommand {
-	cmd := NewbaseCommand()
-	return DelegateCommand{baseCommand: *cmd}
+	cmd := NewBaseCommand()
+	return DelegateCommand{BaseCommand: *cmd}
 }
 
 func (cmd *DelegateCommand) Run(pctx context.Context) error {
@@ -38,8 +38,8 @@ func (cmd *DelegateCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -99,7 +99,7 @@ func (cmd *DelegateCommand) parseFlags() error {
 }
 
 func (cmd *DelegateCommand) createOperation() (base.Operation, error) {
-	e := util.StringErrorFunc("failed to create delegate operation")
+	e := util.StringError("failed to create delegate operation")
 
 	items := []nft.DelegateItem{nft.NewDelegateItem(cmd.contract, cmd.collection, cmd.operator, cmd.mode, cmd.Currency.CID)}
 
@@ -107,11 +107,11 @@ func (cmd *DelegateCommand) createOperation() (base.Operation, error) {
 
 	op, err := nft.NewDelegate(fact)
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 
 	return op, nil

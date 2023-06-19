@@ -35,11 +35,11 @@ type NFTSignItemJSONUnmarshaler struct {
 }
 
 func (it *NFTSignItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of NFTSignItem")
+	e := util.StringError("failed to decode json of NFTSignItem")
 
 	var u NFTSignItemJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unmarshal(enc, u.Hint, u.Contract, u.Collection, u.NFT, u.Currency)

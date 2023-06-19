@@ -40,7 +40,7 @@ func NewCollectionPolicyUpdaterProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 	) (mitumbase.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new CollectionPolicyUpdaterProcessor")
+		e := util.StringError("failed to create new CollectionPolicyUpdaterProcessor")
 
 		nopp := collectionPolicyUpdaterProcessorPool.Get()
 		opp, ok := nopp.(*CollectionPolicyUpdaterProcessor)
@@ -51,7 +51,7 @@ func NewCollectionPolicyUpdaterProcessor() currencytypes.GetNewProcessor {
 		b, err := mitumbase.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -63,14 +63,14 @@ func NewCollectionPolicyUpdaterProcessor() currencytypes.GetNewProcessor {
 func (opp *CollectionPolicyUpdaterProcessor) PreProcess(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc,
 ) (context.Context, mitumbase.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess CollectionPolicyUpdater")
+	e := util.StringError("failed to preprocess CollectionPolicyUpdater")
 	fact, ok := op.Fact().(CollectionPolicyUpdaterFact)
 	if !ok {
-		return ctx, nil, e(nil, "not CollectionPolicyUpdaterFact, %T", op.Fact())
+		return ctx, nil, e.Errorf("not CollectionPolicyUpdaterFact, %T", op.Fact())
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := state.CheckExistsState(statecurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -123,10 +123,10 @@ func (opp *CollectionPolicyUpdaterProcessor) Process(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc) (
 	[]mitumbase.StateMergeValue, mitumbase.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process CollectionPolicyUpdater")
+	e := util.StringError("failed to process CollectionPolicyUpdater")
 	fact, ok := op.Fact().(CollectionPolicyUpdaterFact)
 	if !ok {
-		return nil, nil, e(nil, "expected CollectionPolicyUpdaterFact, not %T", op.Fact())
+		return nil, nil, e.Errorf("expected CollectionPolicyUpdaterFact, not %T", op.Fact())
 	}
 
 	st, err := state.ExistsState(statenft.NFTStateKey(fact.contract, fact.collection, statenft.CollectionKey), "key of design", getStateFunc)

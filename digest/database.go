@@ -440,7 +440,7 @@ func (st *Database) Operations(
 	load bool,
 	reverse bool,
 	limit int64,
-	callback func(mitumutil.Hash /* fact hash */, OperationValue) (bool, error),
+	callback func(mitumutil.Hash /* fact hash */, OperationValue, int64) (bool, error),
 ) error {
 	sr := 1
 	if reverse {
@@ -463,6 +463,11 @@ func (st *Database) Operations(
 		opt = opt.SetProjection(bson.M{"fact": 1})
 	}
 
+	count, err := st.database.Client().Count(context.Background(), defaultColNameOperation, bson.D{})
+	if err != nil {
+		return err
+	}
+
 	return st.database.Client().Find(
 		context.Background(),
 		defaultColNameOperation,
@@ -473,14 +478,14 @@ func (st *Database) Operations(
 				if err != nil {
 					return false, err
 				}
-				return callback(h, OperationValue{})
+				return callback(h, OperationValue{}, count)
 			}
 
 			va, err := LoadOperation(cursor.Decode, st.database.Encoders())
 			if err != nil {
 				return false, err
 			}
-			return callback(va.Operation().Fact().Hash(), va)
+			return callback(va.Operation().Fact().Hash(), va, count)
 		},
 		opt,
 	)
@@ -503,7 +508,7 @@ func (st *Database) Account(a mitumbase.Address) (AccountValue, bool /* exists *
 		},
 		options.FindOne().SetSort(util.NewBSONFilter("height", -1).D()),
 	); err != nil {
-		if errors.Is(err, mitumutil.NewError("not found")) {
+		if errors.Is(err, mitumutil.NewIDError("not found")) {
 			return rs, false, nil
 		}
 
@@ -626,7 +631,7 @@ func (st *Database) balance(a mitumbase.Address) ([]currencytypes.Amount, mitumb
 			},
 			options.FindOne().SetSort(util.NewBSONFilter("height", -1).D()),
 		); err != nil {
-			if err.Error() == mitumutil.NewError("mongo: no documents in result").Error() {
+			if err.Error() == mitumutil.NewIDError("mongo: no documents in result").Error() {
 				break
 			}
 
@@ -686,7 +691,7 @@ func (st *Database) currencies() ([]string, error) {
 			},
 			opt,
 		); err != nil {
-			if err.Error() == mitumutil.NewError("mongo: no documents in result").Error() {
+			if err.Error() == mitumutil.NewIDError("mongo: no documents in result").Error() {
 				break
 			}
 
@@ -950,6 +955,28 @@ func (st *Database) filterAccountByPublickey(
 	}
 
 	return stopped || called == limit, nil
+}
+
+func (st *Database) cleanBalanceByHeightAndAccount(ctx context.Context, height mitumbase.Height, address string) error {
+	if height <= mitumbase.GenesisHeight+1 {
+		return st.clean(ctx)
+	}
+
+	opts := options.BulkWrite().SetOrdered(true)
+	removeByAddress := mongo.NewDeleteManyModel().SetFilter(bson.M{"address": address, "height": bson.M{"$lte": height}})
+
+	res, err := st.database.Client().Collection(defaultColNameBalance).BulkWrite(
+		context.Background(),
+		[]mongo.WriteModel{removeByAddress},
+		opts,
+	)
+	if err != nil {
+		return err
+	}
+
+	st.Log().Debug().Str("collection", defaultColNameBalance).Interface("result", res).Msg("clean Balancecollection by address")
+
+	return st.setLastBlock(height - 1)
 }
 
 func loadLastBlock(st *Database) (mitumbase.Height, bool, error) {

@@ -30,12 +30,12 @@ type NFTSignFactJSONUnmarshaler struct {
 }
 
 func (fact *NFTSignFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of NFTSignFact")
+	e := util.StringError("failed to decode json of NFTSignFact")
 
 	var uf NFTSignFactJSONUnmarshaler
 
 	if err := enc.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
@@ -54,11 +54,11 @@ func (op NFTSign) MarshalJSON() ([]byte, error) {
 }
 
 func (op *NFTSign) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of NFTSign")
+	e := util.StringError("failed to decode json of NFTSign")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

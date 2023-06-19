@@ -14,7 +14,7 @@ import (
 )
 
 type NFTTransferCommand struct {
-	baseCommand
+	BaseCommand
 	cmds.OperationFlags
 	Sender     cmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Receiver   cmds.AddressFlag    `arg:"" name:"receiver" help:"nft owner" required:"true"`
@@ -29,8 +29,8 @@ type NFTTransferCommand struct {
 }
 
 func NewNFTTranfserCommand() NFTTransferCommand {
-	cmd := NewbaseCommand()
-	return NFTTransferCommand{baseCommand: *cmd}
+	cmd := NewBaseCommand()
+	return NFTTransferCommand{BaseCommand: *cmd}
 }
 
 func (cmd *NFTTransferCommand) Run(pctx context.Context) error { // nolint:dupl
@@ -38,8 +38,8 @@ func (cmd *NFTTransferCommand) Run(pctx context.Context) error { // nolint:dupl
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -90,7 +90,7 @@ func (cmd *NFTTransferCommand) parseFlags() error {
 }
 
 func (cmd *NFTTransferCommand) createOperation() (base.Operation, error) {
-	e := util.StringErrorFunc("failed to create nft-transfer operation")
+	e := util.StringError("failed to create nft-transfer operation")
 
 	item := nft.NewNFTTransferItem(cmd.contract, cmd.collection, cmd.receiver, cmd.NFT, cmd.Currency.CID)
 	fact := nft.NewNFTTransferFact(
@@ -101,11 +101,11 @@ func (cmd *NFTTransferCommand) createOperation() (base.Operation, error) {
 
 	op, err := nft.NewNFTTransfer(fact)
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 
 	return op, nil

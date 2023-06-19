@@ -19,13 +19,13 @@ func (fact *CollectionRegisterFact) unmarshal(
 	bws []string,
 	cid string,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal CollectionRegisterFact")
+	e := util.StringError("failed to unmarshal CollectionRegisterFact")
 
 	fact.currency = currencytypes.CurrencyID(cid)
 
 	sender, err := mitumbase.DecodeAddress(sd, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.sender = sender
 
@@ -36,7 +36,7 @@ func (fact *CollectionRegisterFact) unmarshal(
 
 	contract, err := mitumbase.DecodeAddress(ca, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.contract = contract
 
@@ -44,7 +44,7 @@ func (fact *CollectionRegisterFact) unmarshal(
 	for i, bw := range bws {
 		white, err := mitumbase.DecodeAddress(bw, enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		whites[i] = white
 

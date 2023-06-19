@@ -111,18 +111,18 @@ func NewMintProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new MintProcessor")
+		e := util.StringError("failed to create new MintProcessor")
 
 		nopp := mintProcessorPool.Get()
 		opp, ok := nopp.(*MintProcessor)
 		if !ok {
-			return nil, e(nil, "expected MintProcessor, not %T", nopp)
+			return nil, e.Errorf("expected MintProcessor, not %T", nopp)
 		}
 
 		b, err := base.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -134,15 +134,15 @@ func NewMintProcessor() currencytypes.GetNewProcessor {
 func (opp *MintProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess Mint")
+	e := util.StringError("failed to preprocess Mint")
 
 	fact, ok := op.Fact().(MintFact)
 	if !ok {
-		return ctx, nil, e(nil, "expected MintFact, not %T", op.Fact())
+		return ctx, nil, e.Errorf("expected MintFact, not %T", op.Fact())
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := state.CheckExistsState(statecurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -231,7 +231,7 @@ func (opp *MintProcessor) PreProcess(
 		ip := mintItemProcessorPool.Get()
 		ipc, ok := ip.(*MintItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected MintItemProcessor, not %T", ip)
+			return nil, nil, e.Errorf("expected MintItemProcessor, not %T", ip)
 		}
 
 		ipc.h = op.Hash()
@@ -255,11 +255,11 @@ func (opp *MintProcessor) Process( // nolint:dupl
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process Mint")
+	e := util.StringError("failed to process Mint")
 
 	fact, ok := op.Fact().(MintFact)
 	if !ok {
-		return nil, nil, e(nil, "expected MintFact, not %T", op.Fact())
+		return nil, nil, e.Errorf("expected MintFact, not %T", op.Fact())
 	}
 
 	idxes := map[string]uint64{}
@@ -314,7 +314,7 @@ func (opp *MintProcessor) Process( // nolint:dupl
 		ip := mintItemProcessorPool.Get()
 		ipc, ok := ip.(*MintItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected MintItemProcessor, not %T", ip)
+			return nil, nil, e.Errorf("expected MintItemProcessor, not %T", ip)
 		}
 
 		ipc.h = op.Hash()
@@ -368,7 +368,7 @@ func (opp *MintProcessor) Process( // nolint:dupl
 	for i := range sb {
 		v, ok := sb[i].Value().(statecurrency.BalanceStateValue)
 		if !ok {
-			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
+			return nil, nil, e.Errorf("expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := statecurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
 		sts = append(sts, state.NewStateMergeValue(sb[i].Key(), stv))

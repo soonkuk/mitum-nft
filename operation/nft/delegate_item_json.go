@@ -38,11 +38,11 @@ type DelegateItemJSONUnmarshaler struct {
 }
 
 func (it *DelegateItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of DelegateItem")
+	e := util.StringError("failed to decode json of DelegateItem")
 
 	var u DelegateItemJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unmarshal(enc, u.Hint, u.Contract, u.Collection, u.Operator, u.Mode, u.Currency)

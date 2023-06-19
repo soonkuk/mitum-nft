@@ -31,16 +31,16 @@ type DelegateItemBSONUnmarshaler struct {
 }
 
 func (it *DelegateItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of DelegateItem")
+	e := util.StringError("failed to decode bson of DelegateItem")
 
 	var u DelegateItemBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unmarshal(enc, ht, u.Contract, u.Collection, u.Operator, u.Mode, u.Currency)

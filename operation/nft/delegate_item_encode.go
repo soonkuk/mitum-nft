@@ -16,7 +16,7 @@ func (it *DelegateItem) unmarshal(
 	md string,
 	cid string,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal DelegateItem")
+	e := util.StringError("failed to unmarshal DelegateItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -26,14 +26,14 @@ func (it *DelegateItem) unmarshal(
 
 	switch a, err := mitumbase.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
 
 	operator, err := mitumbase.DecodeAddress(ag, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	it.operator = operator
 

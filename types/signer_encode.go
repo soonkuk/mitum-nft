@@ -14,7 +14,7 @@ func (sgn *Signer) unmarshal(
 	sh uint,
 	sg bool,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal Signer")
+	e := util.StringError("failed to unmarshal Signer")
 
 	sgn.BaseHinter = hint.NewBaseHinter(ht)
 	sgn.share = sh
@@ -22,7 +22,7 @@ func (sgn *Signer) unmarshal(
 
 	account, err := base.DecodeAddress(ac, enc)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	sgn.account = account
 

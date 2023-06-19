@@ -24,16 +24,16 @@ type SignerBSONUnmarshaler struct {
 }
 
 func (sgn *Signer) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of Signer")
+	e := util.StringError("failed to decode bson of Signer")
 
 	var u SignerBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return sgn.unmarshal(enc, ht, u.Account, u.Share, u.Signed)

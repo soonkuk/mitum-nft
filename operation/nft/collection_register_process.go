@@ -41,7 +41,7 @@ func NewCollectionRegisterProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc mitumbase.NewOperationProcessorProcessFunc,
 	) (mitumbase.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new CollectionRegisterProcessor")
+		e := util.StringError("failed to create new CollectionRegisterProcessor")
 
 		nopp := collectionRegisterProcessorPool.Get()
 		opp, ok := nopp.(*CollectionRegisterProcessor)
@@ -52,7 +52,7 @@ func NewCollectionRegisterProcessor() currencytypes.GetNewProcessor {
 		b, err := mitumbase.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -64,15 +64,15 @@ func NewCollectionRegisterProcessor() currencytypes.GetNewProcessor {
 func (opp *CollectionRegisterProcessor) PreProcess(
 	ctx context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc,
 ) (context.Context, mitumbase.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess CollectionRegister")
+	e := util.StringError("failed to preprocess CollectionRegister")
 
 	fact, ok := op.Fact().(CollectionRegisterFact)
 	if !ok {
-		return ctx, nil, e(nil, "expected CollectionRegisterFact, not %T", op.Fact())
+		return ctx, nil, e.Errorf("expected CollectionRegisterFact, not %T", op.Fact())
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := state.CheckExistsState(statecurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -129,11 +129,11 @@ func (opp *CollectionRegisterProcessor) Process(
 	_ context.Context, op mitumbase.Operation, getStateFunc mitumbase.GetStateFunc) (
 	[]mitumbase.StateMergeValue, mitumbase.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process CollectionRegister")
+	e := util.StringError("failed to process CollectionRegister")
 
 	fact, ok := op.Fact().(CollectionRegisterFact)
 	if !ok {
-		return nil, nil, e(nil, "expected CollectionRegisterFact, not %T", op.Fact())
+		return nil, nil, e.Errorf("expected CollectionRegisterFact, not %T", op.Fact())
 	}
 
 	sts := make([]mitumbase.StateMergeValue, 3)

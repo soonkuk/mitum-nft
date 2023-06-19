@@ -1,28 +1,13 @@
 package cmds
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
-	"encoding/json"
-	"time"
-
 	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-nft/v2/digest"
-	"github.com/ProtoconNet/mitum2/base"
-	isaacnetwork "github.com/ProtoconNet/mitum2/isaac/network"
 	"github.com/ProtoconNet/mitum2/launch"
-	"github.com/ProtoconNet/mitum2/network/quicmemberlist"
-	"github.com/ProtoconNet/mitum2/network/quicstream"
 	mitumutil "github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/logging"
-	"github.com/pkg/errors"
-)
-
-const (
-	ProcessNameDigestAPI      = "digest_api"
-	ProcessNameStartDigestAPI = "start_digest_api"
-	HookNameSetLocalChannel   = "set_local_channel"
 )
 
 func ProcessStartDigestAPI(ctx context.Context) (context.Context, error) {
@@ -89,58 +74,4 @@ func ProcessDigestAPI(ctx context.Context) (context.Context, error) {
 	}
 
 	return context.WithValue(ctx, ContextValueDigestNetwork, nt), nil
-}
-
-func NewSendHandler(
-	priv base.Privatekey,
-	networkID base.NetworkID,
-	f func() (*isaacnetwork.QuicstreamClient, *quicmemberlist.Memberlist, error),
-) func(interface{}) (base.Operation, error) {
-	return func(v interface{}) (base.Operation, error) {
-		op, ok := v.(base.Operation)
-		if !ok {
-			return nil, mitumutil.ErrWrongType.Errorf("expected Operation, not %T", v)
-		}
-
-		var header = isaacnetwork.NewSendOperationRequestHeader()
-
-		client, memberlist, err := f()
-
-		switch {
-		case err != nil:
-			return nil, err
-
-		default:
-			ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-			defer cancel()
-
-			var nodelist []quicstream.UDPConnInfo
-			memberlist.Members(func(node quicmemberlist.Node) bool {
-				nodelist = append(nodelist, node.UDPConnInfo())
-				return true
-			})
-			for i := range nodelist {
-				buf := bytes.NewBuffer(nil)
-				if err := json.NewEncoder(buf).Encode(op); err != nil {
-					return nil, err
-				} else if buf == nil {
-					return nil, errors.Errorf("buffer from json encoding operation is nil")
-				}
-
-				response, _, cancelrequest, err := client.Request(ctx, nodelist[i], header, buf)
-				if err != nil {
-					return op, err
-				}
-				if response.Err() != nil {
-					return op, response.Err()
-				}
-
-				defer func() {
-					_ = cancelrequest()
-				}()
-			}
-		}
-
-		return op, nil
-	}
 }

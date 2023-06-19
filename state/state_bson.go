@@ -23,22 +23,22 @@ type CollectionStateValueBSONUnmarshaler struct {
 }
 
 func (s *CollectionStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of CollectionStateValue")
+	e := util.StringError("failed to decode bson of CollectionStateValue")
 
 	var u CollectionStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.BaseHinter = hint.NewBaseHinter(ht)
 
 	var nd types.Design
 	if err := nd.DecodeBSON(u.Design, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.Design = nd
 
@@ -60,16 +60,16 @@ type CollectionLastNFTIndexStateValueBSONUnmarshaler struct {
 }
 
 func (s *LastNFTIndexStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of CollectionLastNFTIndexStateValue")
+	e := util.StringError("failed to decode bson of CollectionLastNFTIndexStateValue")
 
 	var u CollectionLastNFTIndexStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -93,22 +93,22 @@ type NFTStateValueBSONUnmarshaler struct {
 }
 
 func (s *NFTStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of NFTStateValue")
+	e := util.StringError("failed to decode bson of NFTStateValue")
 
 	var u NFTStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.BaseHinter = hint.NewBaseHinter(ht)
 
 	var n types.NFT
 	if err := n.DecodeBSON(u.NFT, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.NFT = n
 
@@ -130,22 +130,22 @@ type NFTBoxStateValueBSONUnmarshaler struct {
 }
 
 func (s *NFTBoxStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of NFTBoxStateValue")
+	e := util.StringError("failed to decode bson of NFTBoxStateValue")
 
 	var u NFTBoxStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.BaseHinter = hint.NewBaseHinter(ht)
 
 	var box types.NFTBox
 	if err := box.DecodeBSON(u.Box, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.Box = box
 
@@ -167,22 +167,22 @@ type OperatorsBookStateValueBSONUnmarshaler struct {
 }
 
 func (s *OperatorsBookStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of OperatorsBookStateValue")
+	e := util.StringError("failed to decode bson of OperatorsBookStateValue")
 
 	var u OperatorsBookStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.BaseHinter = hint.NewBaseHinter(ht)
 
 	var operators types.OperatorsBook
 	if err := operators.DecodeBSON(u.Operators, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.Operators = operators
 

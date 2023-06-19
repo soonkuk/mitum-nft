@@ -48,11 +48,11 @@ type CollectionRegisterFactJSONUnmarshaler struct {
 }
 
 func (fact *CollectionRegisterFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CollectionRegisterFact")
+	e := util.StringError("failed to decode json of CollectionRegisterFact")
 
 	var u CollectionRegisterFactJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetJSONUnmarshaler(u.BaseFactJSONUnmarshaler)
@@ -71,11 +71,11 @@ func (op CollectionRegister) MarshalJSON() ([]byte, error) {
 }
 
 func (op *CollectionRegister) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CurrecyRegister")
+	e := util.StringError("failed to decode json of CurrecyRegister")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

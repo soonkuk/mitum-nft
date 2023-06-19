@@ -10,20 +10,20 @@ func (nbx *NFTBox) unmarshal(
 	ht hint.Hint,
 	ns []uint64,
 ) error {
-	//e := util.StringErrorFunc("failed to unmarshal NFTBox")
+	//e := util.StringError("failed to unmarshal NFTBox")
 
 	nbx.BaseHinter = hint.NewBaseHinter(ht)
 
 	//hns, err := enc.DecodeSlice(bns)
 	//if err != nil {
-	//	return e(err, "")
+	//	return e.Wrap(err)
 	//}
 
 	//nfts := make([]nft.NFTID, len(hns))
 	//for i, hinter := range hns {
 	//	n, ok := hinter.(nft.NFTID)
 	//	if !ok {
-	//		return e(util.ErrWrongType.Errorf("expected NFTID, not %T", hinter), "")
+	//		return e(errors.Errorf("expected NFTID, not %T", hinter), "")
 	//	}
 	//
 	//	nfts[i] = n

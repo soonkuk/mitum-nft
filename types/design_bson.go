@@ -30,16 +30,16 @@ type DesignBSONUnmarshaler struct {
 }
 
 func (de *Design) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of Design")
+	e := util.StringError("failed to decode bson of Design")
 
 	var u DesignBSONUnmarshaler
 	if err := bson.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return de.unmarshal(enc, ht, u.Parent, u.Creator, u.Collection, u.Active, u.Policy)

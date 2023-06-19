@@ -27,18 +27,18 @@ type CollectionDesignStateValueJSONUnmarshaler struct {
 }
 
 func (s *CollectionStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CollectionDesignStateValue")
+	e := util.StringError("failed to decode json of CollectionDesignStateValue")
 
 	var u CollectionDesignStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	s.BaseHinter = hint.NewBaseHinter(u.Hint)
 
 	var nd types.Design
 	if err := nd.DecodeJSON(u.Design, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.Design = nd
 
@@ -65,11 +65,11 @@ type LastNFTIndexStateValueJSONUnmarshaler struct {
 }
 
 func (s *LastNFTIndexStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CollectionLastNFTIndexStateValue")
+	e := util.StringError("failed to decode json of CollectionLastNFTIndexStateValue")
 
 	var u LastNFTIndexStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	s.BaseHinter = hint.NewBaseHinter(u.Hint)
@@ -95,18 +95,18 @@ type NFTStateValueJSONUnmarshaler struct {
 }
 
 func (s *NFTStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of NFTStateValue")
+	e := util.StringError("failed to decode json of NFTStateValue")
 
 	var u NFTStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	s.BaseHinter = hint.NewBaseHinter(u.Hint)
 
 	var n types.NFT
 	if err := n.DecodeJSON(u.NFT, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.NFT = n
 
@@ -130,18 +130,18 @@ type NFTBoxStateValueJSONUnmarshaler struct {
 }
 
 func (s *NFTBoxStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of NFTBoxStateValue")
+	e := util.StringError("failed to decode json of NFTBoxStateValue")
 
 	var u NFTBoxStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	s.BaseHinter = hint.NewBaseHinter(u.Hint)
 
 	var box types.NFTBox
 	if err := box.DecodeJSON(u.Box, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.Box = box
 
@@ -165,18 +165,18 @@ type OperatorsBookStateValueJSONUnmarshaler struct {
 }
 
 func (s *OperatorsBookStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of OperatorsBookStateValue")
+	e := util.StringError("failed to decode json of OperatorsBookStateValue")
 
 	var u OperatorsBookStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	s.BaseHinter = hint.NewBaseHinter(u.Hint)
 
 	var operators types.OperatorsBook
 	if err := operators.DecodeJSON(u.Operators, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	s.Operators = operators
 

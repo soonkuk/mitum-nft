@@ -14,7 +14,7 @@ import (
 )
 
 type NFTSignCommand struct {
-	baseCommand
+	BaseCommand
 	cmds.OperationFlags
 	Sender     cmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract   cmds.AddressFlag    `arg:"" name:"contract" help:"contract address" required:"true"`
@@ -27,8 +27,8 @@ type NFTSignCommand struct {
 }
 
 func NewNFTSignCommand() NFTSignCommand {
-	cmd := NewbaseCommand()
-	return NFTSignCommand{baseCommand: *cmd}
+	cmd := NewBaseCommand()
+	return NFTSignCommand{BaseCommand: *cmd}
 }
 
 func (cmd *NFTSignCommand) Run(pctx context.Context) error { // nolint:dupl
@@ -36,8 +36,8 @@ func (cmd *NFTSignCommand) Run(pctx context.Context) error { // nolint:dupl
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -82,7 +82,7 @@ func (cmd *NFTSignCommand) parseFlags() error {
 }
 
 func (cmd *NFTSignCommand) createOperation() (base.Operation, error) {
-	e := util.StringErrorFunc("failed to create nft-sign operation")
+	e := util.StringError("failed to create nft-sign operation")
 
 	item := nft.NewNFTSignItem(cmd.contract, cmd.collection, cmd.NFT, cmd.Currency.CID)
 
@@ -94,11 +94,11 @@ func (cmd *NFTSignCommand) createOperation() (base.Operation, error) {
 
 	op, err := nft.NewNFTSign(fact)
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, e(err, "")
+		return nil, e.Wrap(err)
 	}
 
 	return op, nil

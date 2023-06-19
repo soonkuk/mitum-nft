@@ -15,14 +15,14 @@ func (it *NFTSignItem) unmarshal(
 	nft uint64,
 	cid string,
 ) error {
-	e := util.StringErrorFunc("failed to unmarshal NFTSignItem")
+	e := util.StringError("failed to unmarshal NFTSignItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.currency = types.CurrencyID(cid)
 	it.collection = types.ContractID(col)
 	switch a, err := mitumbase.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}

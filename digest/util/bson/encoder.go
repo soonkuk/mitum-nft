@@ -123,9 +123,9 @@ func (enc *Encoder) DecodeWithFixedHintType(s string, size int) (interface{}, er
 		return nil, nil
 	}
 
-	e := util.StringErrorFunc("failed to decode with fixed hint type")
+	e := util.StringError("failed to decode with fixed hint type")
 	if size < 1 {
-		return nil, e(nil, "size < 1")
+		return nil, e.Errorf("size < 1")
 	}
 
 	i, found := enc.poolGet(s)
@@ -153,7 +153,7 @@ func (enc *Encoder) DecodeWithFixedHintType(s string, size int) (interface{}, er
 }
 
 func (enc *Encoder) decodeWithFixedHintType(s string, size int) (interface{}, error) {
-	e := util.StringErrorFunc("failed to decode with fixed hint type")
+	e := util.StringError("failed to decode with fixed hint type")
 
 	body, t, err := hint.ParseFixedTypedString(s, size)
 	if err != nil {
@@ -223,7 +223,7 @@ func (enc *Encoder) decodeWithHint(b []byte, ht hint.Hint) (interface{}, error) 
 }
 
 func (*Encoder) guessHint(b []byte) (hint.Hint, error) {
-	e := util.StringErrorFunc("failed to guess hint")
+	e := util.StringError("failed to guess hint")
 
 	var head HintedHead
 	if err := bson.Unmarshal(b, &head); err != nil {
@@ -232,7 +232,7 @@ func (*Encoder) guessHint(b []byte) (hint.Hint, error) {
 
 	ht, err := hint.ParseHint(head.H)
 	if err != nil {
-		return hint.Hint{}, e(err, "")
+		return hint.Hint{}, e.Wrap(err)
 	}
 
 	if err := ht.IsValid(nil); err != nil {
@@ -243,7 +243,7 @@ func (*Encoder) guessHint(b []byte) (hint.Hint, error) {
 }
 
 func (enc *Encoder) analyze(d encoder.DecodeDetail, v interface{}) encoder.DecodeDetail {
-	e := util.StringErrorFunc("failed to analyze in bson encoder")
+	e := util.StringError("failed to analyze in bson encoder")
 
 	ptr, elem := encoder.Ptr(v)
 

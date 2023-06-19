@@ -39,13 +39,13 @@ type CollectionRegisterFactBSONUnmarshaler struct {
 }
 
 func (fact *CollectionRegisterFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of CollectionRegisterFact")
+	e := util.StringError("failed to decode bson of CollectionRegisterFact")
 
 	var u common.BaseFactBSONUnmarshaler
 
 	err := enc.Unmarshal(b, &u)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(u.Hash))
@@ -53,12 +53,12 @@ func (fact *CollectionRegisterFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) e
 
 	var uf CollectionRegisterFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uf.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -76,11 +76,11 @@ func (op CollectionRegister) MarshalBSON() ([]byte, error) {
 }
 
 func (op *CollectionRegister) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of CollectionRegister")
+	e := util.StringError("failed to decode bson of CollectionRegister")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

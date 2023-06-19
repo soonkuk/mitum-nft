@@ -38,11 +38,11 @@ type ApproveItemJSONUnmarshaler struct {
 }
 
 func (it *ApproveItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed decode json of ApproveItem")
+	e := util.StringError("failed decode json of ApproveItem")
 
 	var u ApproveItemJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unmarshal(enc, u.Hint, u.Contract, u.Collection, u.Approved, u.NFTidx, u.Currency)

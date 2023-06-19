@@ -29,13 +29,13 @@ type DelegateFactBSONUnmarshaler struct {
 }
 
 func (fact *DelegateFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of DelegateFact")
+	e := util.StringError("failed to decode bson of DelegateFact")
 
 	var u common.BaseFactBSONUnmarshaler
 
 	err := enc.Unmarshal(b, &u)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(u.Hash))
@@ -43,12 +43,12 @@ func (fact *DelegateFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 
 	var uf DelegateFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uf.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -66,11 +66,11 @@ func (op Delegate) MarshalBSON() ([]byte, error) {
 }
 
 func (op *Delegate) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of Delegate")
+	e := util.StringError("failed to decode bson of Delegate")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

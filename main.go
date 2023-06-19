@@ -26,8 +26,8 @@ var (
 //revive:disable:nested-structs
 type CLI struct { //nolint:govet //...
 	launch.BaseFlags
-	Import    cmds.ImportCommand          `cmd:"" help:"import from block data"`
-	Init      cmds.INITCommand            `cmd:"" help:"init node"`
+	Import    currencycmds.ImportCommand  `cmd:"" help:"import from block data"`
+	Init      currencycmds.INITCommand    `cmd:"" help:"init node"`
 	Run       cmds.RunCommand             `cmd:"" help:"run node"`
 	Operation cmds.OperationCommand       `cmd:"" help:"create operation"`
 	Network   currencycmds.NetworkCommand `cmd:"" help:"network"`
@@ -49,8 +49,8 @@ var flagDefaults = kong.Vars{
 
 func main() {
 	cli := CLI{
-		Import:    cmds.NewImportCommand(),
-		Init:      cmds.NewINITCommand(),
+		Import:    currencycmds.NewImportCommand(),
+		Init:      currencycmds.NewINITCommand(),
 		Run:       cmds.NewRunCommand(),
 		Operation: cmds.NewOperationCommand(),
 		Network:   currencycmds.NewNetworkCommand(),

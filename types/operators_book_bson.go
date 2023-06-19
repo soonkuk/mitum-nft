@@ -22,16 +22,16 @@ type OperatorsBookBSONUnmarshaler struct {
 }
 
 func (ob *OperatorsBook) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of operators book")
+	e := util.StringError("failed to decode bson of operators book")
 
 	var u OperatorsBookBSONUnmarshaler
 	if err := bsonenc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return ob.unmarshal(enc, ht, u.Collection, u.Operators)
